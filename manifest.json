@@ -1,0 +1,15 @@
+{
+  "manifest": 1,
+  "id": "org.openglow.serializer",
+  "name": "Serializer",
+  "version": "0.1.0",
+  "description": "Serial numbers, dates, and text marked on one item or a grid of them, cycle after cycle: close the lid, press the button, and the next numbers go out.",
+  "author": "OpenGlow",
+  "license": "MIT",
+  "homepage": "https://docs.forgefirm.org/usage/extensions/serializer/",
+  "api": "0.1",
+  "runtime": "python",
+  "service": {"exec": "bin/run.py"},
+  "modes": ["grbl"],
+  "capabilities": ["ui", "machine.read", "events", "motion.job", "sender.keep_out", "job_time.run", "storage:16"]
+}

@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!--
+  Serializer - the org.openglow.serializer package's page
+  Copyright 2026 514 LLC d/b/a OpenGlow
+  Written by Scott Wiederhold
+  SPDX-License-Identifier: MIT
+
+  The page is the Serializer's screen: its service keeps the profiles, the
+  counters, and the run (bin/run.py, lib/serializer). Every change the
+  operator makes is saved as it is made, and the preview is drawn from
+  what the service lays out, which is also what the machine marks.
+-->
+<meta charset="utf-8">
+<title>Serializer</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --act: #0088cc; --act-h: #0077b3; --ok: #3d854d; --warn: #c7760a; --bad: #d0302f; --dim: #767a82;
+  --line: #dde0e6; --soft: #eceef1; --field: #ffffff; --fline: #c9cdd4; --ink: #222;
+  --note-bg: #fdf3e3; --note-line: #eccb90; --note-txt: #7a5a12;
+  --warn-bg: #fff6e6; --warn-txt: #7a4a06; --bad-bg: #fdeeee; --bad-txt: #7a1f1f; --ok-bg: #eaf5ec; --ok-txt: #245c31;
+  --card: rgba(128,128,128,.05); --sel: rgba(0,136,204,.12); --mark: #e8262a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --act: #2ea3e0; --act-h: #46b3ec; --ok: #5fb374; --warn: #e09a3a; --bad: #f05a5e; --dim: #9296a2;
+    --line: #32353f; --soft: #2a2d36; --field: #14151b; --fline: #3d404b; --ink: #d9dce3;
+    --note-bg: #2e2717; --note-line: #6a5323; --note-txt: #e3c584;
+    --warn-bg: #2f2415; --warn-txt: #eab86a; --bad-bg: #331c1e; --bad-txt: #f0a3a6; --ok-bg: #1b2a1f; --ok-txt: #9fd6ab;
+    --card: rgba(128,128,128,.08); --sel: rgba(46,163,224,.18); --mark: #f05a5e;
+  }
+}
+* { box-sizing: border-box; }
+html, body { background: transparent; }
+body { margin: 0; padding: 8px 4px 12px; font: 13.5px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--ink); }
+h3 { margin: 14px 0 6px; font-size: 13.5px; }
+h3:first-child { margin-top: 2px; }
+p { margin: 6px 0; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { padding: 4px 10px; border: 1px solid var(--fline); border-radius: 5px; background: var(--card); cursor: pointer; white-space: nowrap; }
+button:hover:not(:disabled) { border-color: var(--act); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--act); border-color: var(--act); color: #fff; font-weight: 600; }
+button.primary:hover:not(:disabled) { background: var(--act-h); }
+button.big { padding: 8px 18px; font-size: 15px; }
+button.danger { border-color: var(--bad); color: var(--bad); }
+button.link { border: 0; background: none; padding: 0 2px; color: var(--act); }
+input[type=text], input[type=number], select, textarea { background: var(--field); border: 1px solid var(--fline); border-radius: 4px; padding: 3px 6px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--sel); border-color: var(--act); }
+input[type=number] { width: 78px; }
+input.wide { width: 100%; }
+textarea { width: 100%; resize: vertical; }
+label { white-space: nowrap; }
+.hint { color: var(--dim); font-size: 12.5px; }
+.u { color: var(--dim); font-size: 12.5px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 7px 0; }
+.row.tight { gap: 6px; }
+.grow { flex: 1 1 auto; }
+[hidden] { display: none !important; }
+.seg { display: inline-flex; border: 1px solid var(--fline); border-radius: 5px; overflow: hidden; vertical-align: middle; }
+.seg button { border: 0; border-radius: 0; background: none; padding: 3px 10px; }
+.seg button + button { border-left: 1px solid var(--fline); }
+.seg button.on { background: var(--sel); color: var(--act); font-weight: 600; }
+.msg { border-radius: 5px; padding: 6px 9px; margin: 6px 0; font-size: 13px; }
+.msg.info { background: var(--card); }
+.msg.ok { background: var(--ok-bg); color: var(--ok-txt); }
+.msg.warn { background: var(--warn-bg); color: var(--warn-txt); }
+.msg.bad { background: var(--bad-bg); color: var(--bad-txt); }
+.msg:empty { display: none; }
+
+/* the profile bar */
+#bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+#bar select { min-width: 220px; font-weight: 600; }
+#saved { margin-left: auto; color: var(--dim); font-size: 12.5px; }
+#saved.busy { color: var(--act); }
+#saved.bad { color: var(--bad); }
+#rename, #delask { display: inline-flex; gap: 6px; align-items: center; }
+
+/* the run */
+#run { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; background: var(--card); }
+#run.live { border-color: var(--act); box-shadow: 0 0 0 1px var(--act) inset; }
+.runtop { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.runtext { flex: 1 1 320px; min-width: 0; }
+#runTitle { font-size: 17px; font-weight: 650; }
+#runSub { color: var(--dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.runbtns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#steps { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 2px; padding: 0; list-style: none; counter-reset: s; }
+#steps li { counter-increment: s; flex: 1 1 130px; padding: 5px 8px; border-radius: 5px; border: 1px solid var(--line); color: var(--dim); font-size: 12.5px; }
+#steps li::before { content: counter(s) ". "; font-weight: 600; }
+#steps li.now { border-color: var(--act); color: var(--act); background: var(--sel); font-weight: 600; }
+#steps li.done { color: var(--ok); }
+.bar { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; margin-top: 8px; }
+.bar > div { height: 100%; width: 0; background: var(--act); transition: width .5s; }
+#machine { font-size: 12.5px; color: var(--dim); margin-top: 6px; font-variant-numeric: tabular-nums; }
+#machine b { font-weight: 600; color: var(--ink); }
+#machine .no { color: var(--warn); font-weight: 600; }
+#notes { border: 1px solid var(--note-line); background: var(--note-bg); color: var(--note-txt); border-radius: 6px; padding: 6px 10px; margin-top: 8px; white-space: pre-wrap; }
+#notes b { display: block; margin-bottom: 2px; }
+
+/* the editor and the preview */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 44%); gap: 14px; align-items: start; }
+@media (max-width: 820px) { .main { grid-template-columns: 1fr; } .pv { order: -1; position: static; } }
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 6px 10px; color: var(--dim); }
+.tabs button.on { color: var(--act); border-bottom-color: var(--act); font-weight: 600; }
+.tabs .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--bad); margin-left: 5px; vertical-align: middle; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+#locked { margin-bottom: 8px; }
+.grid2 { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 7px 10px; align-items: center; }
+.grid2 > .hint { grid-column: 2; margin-top: -4px; }
+.grid2 > .seg { justify-self: start; }
+#text { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 14px; min-height: 64px; }
+.inserts { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.inserts select { max-width: 190px; }
+#sample { border: 1px dashed var(--line); border-radius: 5px; padding: 5px 8px; font-family: ui-monospace, Consolas, monospace; white-space: pre; overflow-x: auto; min-height: 30px; }
+#sample .lbl { font-family: system-ui, sans-serif; color: var(--dim); font-size: 12px; display: block; }
+.fontbtn { display: inline-flex; align-items: center; gap: 8px; min-width: 240px; text-align: left; }
+.fontbtn svg { height: 20px; width: 120px; }
+#fontpick { border: 1px solid var(--line); border-radius: 6px; padding: 6px; margin: 6px 0; max-height: 380px; overflow-y: auto; background: var(--field); }
+#fontpick h4 { margin: 8px 4px 4px; font-size: 12px; color: var(--dim); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+#fontpick h4:first-child { margin-top: 2px; }
+.fonts { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px; }
+.fonts button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 5px 7px; text-align: left; border-color: var(--soft); white-space: normal; }
+.fonts button.on { border-color: var(--act); background: var(--sel); }
+.fonts svg { width: 100%; height: 22px; }
+.fonts span { font-size: 11.5px; color: var(--dim); }
+.card { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+.card .head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.card .head input.name { font-weight: 600; width: 150px; }
+.card .nextv { font-family: ui-monospace, Consolas, monospace; font-size: 15px; width: 150px; }
+.codes { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 4px 8px; margin-top: 6px; }
+.codes label { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--dim); }
+.codes input { width: 44px; }
+.fieldref { display: grid; grid-template-columns: max-content max-content 1fr; gap: 2px 12px; font-size: 12.5px; }
+.fieldref code { font-family: ui-monospace, Consolas, monospace; color: var(--act); cursor: pointer; }
+.fieldref .ex { font-family: ui-monospace, Consolas, monospace; }
+
+/* the preview */
+.pv { border: 1px solid var(--line); border-radius: 8px; padding: 8px; position: sticky; top: 6px; }
+.pvtop { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+#pvItem, #pvBed { display: block; width: 100%; height: auto; margin-top: 6px; user-select: none; }
+#pvBed .slot { cursor: pointer; }
+#pvBed .slot:hover rect { stroke: var(--act); stroke-width: 2px; }
+#pvInfo { font-size: 12.5px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+#pvInfo .k { color: var(--dim); }
+.pvlegend { font-size: 12px; color: var(--dim); margin-top: 4px; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin: 0 3px 0 8px; }
+
+/* the history */
+details { margin-top: 14px; }
+summary { cursor: pointer; font-weight: 600; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 3px 8px; border-bottom: 1px solid var(--soft); vertical-align: top; }
+th { color: var(--dim); font-weight: 600; }
+td.mono { font-family: ui-monospace, Consolas, monospace; }
+.res-done { color: var(--ok); }
+.res-bad { color: var(--bad); }
+.res-warn { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <select id="profile" aria-label="Profile"></select>
+  <span id="rename" hidden><input type="text" id="renameText" maxlength="60" aria-label="New name"><button id="renameOk" class="primary">Rename</button><button id="renameNo">Cancel</button></span>
+  <span id="delask" hidden><span>Delete this profile and its counters?</span><button id="delYes" class="danger">Delete</button><button id="delNo">Keep it</button></span>
+  <span id="profbtns">
+    <button id="pNew" title="A new profile with the defaults">New</button>
+    <button id="pCopy" title="A copy of this profile, counters included">Copy</button>
+    <button id="pRename">Rename</button>
+    <button id="pDelete">Delete</button>
+  </span>
+  <span id="saved"></span>
+</div>
+
+<section id="run">
+  <div class="runtop">
+    <div class="runtext">
+      <div id="runTitle">Asking the Serializer…</div>
+      <div id="runSub"></div>
+    </div>
+    <div class="runbtns">
+      <button id="bStart" class="primary big">Start</button>
+      <button id="bSend" class="primary" hidden>Send again</button>
+      <button id="bStopAfter" hidden>Stop after this cycle</button>
+      <button id="bStop" hidden>Stop</button>
+      <button id="bStopNow" class="danger" hidden>Stop now</button>
+    </div>
+  </div>
+  <ol id="steps" hidden>
+    <li data-s="load">Load the items, close the lid</li>
+    <li data-s="press">Press the button on the machine</li>
+    <li data-s="mark">The machine marks them</li>
+    <li data-s="reload">Open the lid, change the items</li>
+  </ol>
+  <div class="bar" id="progress" hidden><div></div></div>
+  <div id="runNote" class="msg"></div>
+  <div id="machine"></div>
+  <div id="notes" hidden><b>Notes</b><span id="notesText"></span></div>
+</section>
+
+<div class="main">
+  <div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="text" class="on">Text</button>
+      <button data-tab="numbers">Numbers &amp; dates</button>
+      <button data-tab="layout">Layout</button>
+      <button data-tab="laser">Laser</button>
+      <button data-tab="notes">Notes</button>
+    </nav>
+    <div id="locked" class="msg warn" hidden>This profile is running. Stop the run to change it.</div>
+    <fieldset id="editor">
+
+    <div class="tab" id="tab-text">
+      <textarea id="text" rows="3" spellcheck="false" aria-label="The text to mark"></textarea>
+      <div class="inserts">
+        <select id="insCounter" aria-label="Insert a counter"></select>
+        <select id="insDate" aria-label="Insert a date field"></select>
+        <select id="insCode" aria-label="Insert a code"></select>
+        <select id="insCheck" aria-label="Insert a check digit"></select>
+      </div>
+      <p class="hint">Fields in braces are filled in for each item: <code>{Serial}</code> is a counter, <code>{Year}</code> the date. Pick one from the lists to put it where the cursor is.</p>
+      <div id="sample"></div>
+
+      <h3>Font</h3>
+      <button class="fontbtn" id="fontBtn" aria-expanded="false"><span id="fontName">Font</span><svg id="fontSw" viewBox="0 0 100 10" preserveAspectRatio="xMinYMid meet"></svg></button>
+      <div id="fontpick" hidden></div>
+      <div class="row" id="styleRow">
+        <span>Marked as</span>
+        <span class="seg" data-k="style"><button data-v="fill">Filled</button><button data-v="outline">Outline</button><button data-v="fill_outline">Filled and outlined</button></span>
+      </div>
+      <p class="hint" id="styleHint"></p>
+
+      <h3>Size</h3>
+      <div class="grid2">
+        <span>Text height</span><span><input type="number" data-k="size_mm" data-u="len" step="0.1" min="0.5"> <span class="u" data-ul="len"></span></span>
+        <span class="hint">The height of the capital letters.</span>
+        <span>Line spacing</span><span><input type="number" data-k="line_spacing" step="0.05" min="0.5" max="5"> <span class="u">× the text height, line to line</span></span>
+        <span>Letter spacing</span><span><input type="number" data-k="letter_spacing_mm" data-u="len" step="0.05"> <span class="u" data-ul="len"></span> <span class="u">added between letters</span></span>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-numbers" hidden>
+      <h3>Counters</h3>
+      <p class="hint">Each counter holds the next number to mark. A cycle that is canceled before the button is pressed gives its numbers back, so no number is marked twice.</p>
+      <div id="counters"></div>
+      <button id="addCounter">Add a counter</button>
+
+      <h3>Date codes</h3>
+      <p class="hint">Your own letters or numbers for a part of the date, such as A to L for the months.</p>
+      <div id="codes"></div>
+      <button id="addCode">Add a date code</button>
+
+      <h3>Date fields</h3>
+      <p class="hint">Click one to put it in the text. The date and time are your computer's, taken as each cycle goes out.</p>
+      <div class="fieldref" id="fieldref"></div>
+    </div>
+
+    <div class="tab" id="tab-layout" hidden>
+      <h3>Start point</h3>
+      <div class="row">
+        <span class="seg" data-k="start.mode"><button data-v="current">Where the head is at Start</button><button data-v="fixed">A set position</button></span>
+      </div>
+      <div class="row" id="fixedRow">
+        <label>X <input type="number" data-k="start.x" data-u="len" step="0.1" min="0"></label>
+        <label>Y <input type="number" data-k="start.y" data-u="len" step="0.1" min="0"></label>
+        <span class="u" data-ul="len"></span>
+        <button id="useHere" title="Put the head's position in X and Y">Use where the head is</button>
+      </div>
+      <p class="hint" id="startHint"></p>
+
+      <h3>First text box</h3>
+      <div class="grid2">
+        <span>From the start point</span><span><label>right <input type="number" data-k="offset.x" data-u="len" step="0.1"></label> <label>toward the front <input type="number" data-k="offset.y" data-u="len" step="0.1"></label> <span class="u" data-ul="len"></span></span>
+        <span class="hint">To the box's top-left corner.</span>
+        <span>Box size</span><span><label>width <input type="number" data-k="box.w" data-u="len" step="0.1" min="1"></label> <label>height <input type="number" data-k="box.h" data-u="len" step="0.1" min="1"></label> <span class="u" data-ul="len"></span> <button id="fitBox" title="Make the box just fit the text">Fit to the text</button></span>
+        <span>Text in the box</span><span class="row tight" style="margin:0"><span class="seg" data-k="box.halign"><button data-v="left">Left</button><button data-v="center">Center</button><button data-v="right">Right</button></span><span class="seg" data-k="box.valign"><button data-v="top">Top</button><button data-v="middle">Middle</button><button data-v="bottom">Bottom</button></span></span>
+        <span>Turned</span><span class="seg" data-k="rotation"><button data-v="0">0°</button><button data-v="90">90°</button><button data-v="180">180°</button><button data-v="270">270°</button></span>
+      </div>
+
+      <h3>Grid of items</h3>
+      <div class="grid2">
+        <span>Items</span><span><label><input type="number" data-k="grid.cols" step="1" min="1" max="50"> across</label> <label><input type="number" data-k="grid.rows" step="1" min="1" max="50"> down</label></span>
+        <span>Spacing</span><span><label>across <input type="number" data-k="grid.pitch_x" data-u="len" step="0.1" min="0"></label> <label>down <input type="number" data-k="grid.pitch_y" data-u="len" step="0.1" min="0"></label> <span class="u" data-ul="len"></span></span>
+        <span class="hint">From one item's box to the next, corner to corner.</span>
+      </div>
+      <p class="hint">Items are numbered row by row from the back-left. Click an item on the bed preview to leave it out, or to put it back.</p>
+    </div>
+
+    <div class="tab" id="tab-laser" hidden>
+      <h3>Material</h3>
+      <div class="grid2">
+        <span>Height</span><span><input type="number" data-k="z" data-u="len" step="0.1"> <span class="u" data-ul="len"></span></span>
+        <span class="hint">The top of the material: the laser focuses there.</span>
+        <span>Crumb tray</span><span class="seg" data-k="tray"><button data-v="in">In</button><button data-v="out">Out</button></span>
+        <span class="hint">With the tray out, the height is from the floor of the machine.</span>
+      </div>
+      <h3 id="lineHead">Lines</h3>
+      <p class="hint" id="lineUse"></p>
+      <div class="row">
+        <label>Power <input type="number" data-k="laser.line.power" step="1" min="0" max="100"> <span class="u">%</span></label>
+        <label>Speed <input type="number" data-k="laser.line.speed" data-u="speed" step="1" min="1"> <span class="u" data-ul="speed"></span></label>
+        <label>Passes <input type="number" data-k="laser.line.passes" step="1" min="1" max="10"></label>
+      </div>
+      <h3 id="fillHead">Fill</h3>
+      <p class="hint" id="fillUse"></p>
+      <div class="row">
+        <label>Power <input type="number" data-k="laser.fill.power" step="1" min="0" max="100"> <span class="u">%</span></label>
+        <label>Speed <input type="number" data-k="laser.fill.speed" data-u="speed" step="1" min="1"> <span class="u" data-ul="speed"></span></label>
+        <label>Line interval <input type="number" data-k="laser.fill.interval" data-u="len" step="0.01" min="0.02"> <span class="u" data-ul="len"></span></label>
+        <label>Passes <input type="number" data-k="laser.fill.passes" step="1" min="1" max="10"></label>
+      </div>
+      <h3>Between cycles</h3>
+      <div class="grid2">
+        <span>Wait for the button</span><span><input type="number" data-k="run.press_wait_s" data-u="min" step="0.5" min="0.5" max="60"> <span class="u">minutes, then the cycle is canceled</span></span>
+        <span>Lid open at least</span><span><input type="number" data-k="run.min_open_s" step="0.5" min="0" max="30"> <span class="u">seconds, so a bump does not count</span></span>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-notes" hidden>
+      <p class="hint">Instructions for whoever runs this job: how to set up the jig, where to align the laser. They show above the Start button.</p>
+      <textarea id="notesEdit" rows="8" maxlength="1000" aria-label="Notes"></textarea>
+      <p class="hint" id="notesLeft"></p>
+    </div>
+
+    </fieldset>
+  </div>
+
+  <aside class="pv">
+    <div class="pvtop">
+      <span class="seg" id="pvMode"><button data-v="item" class="on">One item</button><button data-v="bed">On the bed</button></span>
+      <span class="hint" id="pvWhen"></span>
+    </div>
+    <div class="hint" id="pvCap" style="margin-top:4px"></div>
+    <svg id="pvItem" viewBox="0 0 100 40" role="img" aria-label="The first item's text"></svg>
+    <svg id="pvBed" viewBox="0 0 515 299" role="img" aria-label="The items on the bed" hidden></svg>
+    <div class="pvlegend" id="pvLegend" hidden><span class="sw" style="background:var(--act)"></span>marked<span class="sw" style="border:1px dashed var(--dim)"></span>left out<span class="sw" style="background:var(--mark);border-radius:50%"></span>start point
+      <label style="float:right"><input type="checkbox" id="wholeBed"> the whole bed</label></div>
+    <div id="pvInfo"></div>
+    <div id="pvMsgs"></div>
+  </aside>
+</div>
+
+<details id="history">
+  <summary>History</summary>
+  <div id="histBody"><p class="hint">Nothing marked yet.</p></div>
+</details>
+
+<script>
+/* ffx-bridge.js, extension API 0.1, from the forgeext SDK (sdk/js/ffx-bridge.js), pasted whole. */
+/*
+ * ffx-bridge.js - a package page's side of the control panel's bridge
+ * Copyright 2026 514 LLC d/b/a OpenGlow
+ * Written by Scott Wiederhold
+ * SPDX-License-Identifier: MIT
+ *
+ * A package's page runs in a sandboxed frame that can reach nothing: no
+ * network, no session, no panel. Everything it wants it asks the panel for
+ * over postMessage, and the panel decides by what the package may use. This
+ * is the asking side: one promise per call, resolved with the panel's answer
+ * or rejected with its words. A page is one self-contained file, so this
+ * script is pasted into it (inside a <script> element) rather than loaded.
+ *
+ *   ffx.self()                          -> {id, version, tier, capabilities}
+ *   ffx.machine.status() / .cool() / .mode()               (machine.read)
+ *   ffx.settings.get() / .set({key: value})               (settings.own)
+ *   ffx.camera.frame({camera, resolution, quality, lamp})  -> a Blob (JPEG)
+ *   ffx.camera.stream({camera, fps, lamp}, onFrame, onEnd) the camera's video: onFrame(Blob) about fps times
+ *                                                          a second (1 to 15, 5 by default) until
+ *                                                          ffx.camera.stop(), or onEnd(words)
+ *   ffx.motion.jog({x, y, z, feed}) / .cancel()           (motion.jog)
+ *   ffx.motion.job({program, lit_within_s, timeout_s})    (motion.job)
+ *   ffx.motion.jobState() / .jobAbort()                   (motion.job)
+ *   ffx.frame.height(px)                                  -> {px}, inside the panel's bounds
+ *   ffx.service.call(method, path, body)                  -> {status, body}, from the package's own service
+ *
+ * Extension API 0.1. The panel answers only its own frame's parent window,
+ * and this script listens to nothing else.
+ */
+var ffx = (function () {
+  'use strict';
+  var n = 0,
+    waiting = {};
+
+  var streamFrame = null,
+    streamEnd = null;
+
+  window.addEventListener('message', function (ev) {
+    var m = ev.data;
+    if (ev.source !== window.parent || !m || m.forgefirm !== 1) return;
+    if (m.stream === 'camera') {
+      if (m.frame && streamFrame) streamFrame(m.frame);
+      if (m.end && streamEnd) streamEnd(m.error || 'the camera stream ended');
+      return;
+    }
+    if (!waiting[m.id]) return;
+    var w = waiting[m.id];
+    delete waiting[m.id];
+    clearTimeout(w.timer);
+    if (m.ok) w.ok(m.value);
+    else w.err(new Error(m.error || 'refused'));
+  });
+
+  /* One call. A camera frame can take seconds (the camera starts, and a
+   * capture waits for a viewer to go), so the default wait is long. */
+  function call(name, args, waitMs) {
+    return new Promise(function (ok, err) {
+      var id = ++n;
+      waiting[id] = {
+        ok: ok,
+        err: err,
+        timer: setTimeout(function () {
+          if (!waiting[id]) return;
+          delete waiting[id];
+          err(new Error('the panel did not answer ' + name));
+        }, waitMs || 40000)
+      };
+      window.parent.postMessage({ forgefirm: 1, id: id, call: name, args: args }, '*');
+    });
+  }
+
+  return {
+    version: '0.1',
+    call: call,
+    self: function () { return call('self'); },
+    machine: {
+      status: function () { return call('machine.status'); },
+      cool: function () { return call('machine.cool'); },
+      mode: function () { return call('machine.mode'); }
+    },
+    settings: {
+      get: function () { return call('settings.get'); },
+      set: function (patch) { return call('settings.set', patch); }
+    },
+    camera: {
+      frame: function (opts) { return call('camera.frame', opts || { camera: 'lid' }, 60000); },
+      stream: function (opts, onFrame, onEnd) {
+        var o = {};
+        for (var k in opts || {}) o[k] = opts[k];
+        o.on = true;
+        streamFrame = onFrame;
+        streamEnd = onEnd || null;
+        return call('camera.stream', o, 60000);
+      },
+      stop: function () {
+        streamFrame = streamEnd = null;
+        return call('camera.stream', { on: false });
+      }
+    },
+    motion: {
+      jog: function (move) { return call('motion.jog', move, 120000); },
+      cancel: function () { return call('motion.cancel'); },
+      job: function (spec) { return call('motion.job', spec); },
+      jobState: function () { return call('motion.job.state'); },
+      jobAbort: function () { return call('motion.job.abort'); }
+    },
+    frame: {
+      height: function (px) { return call('frame.height', { px: px }); }
+    },
+    /* The package's own service answers; the host waits ten seconds for it. */
+    service: {
+      call: function (method, path, body) {
+        return call('service.call', { method: method, path: path, body: body }, 20000);
+      }
+    }
+  };
+})();
+</script>
+<script>
+'use strict';
+
+/* --- state --------------------------------------------------------------------------------- */
+
+var UNITS = 'metric';
+var P = null;                  /* the profile shown, as the service last answered it, with local edits on top */
+var PROFILES = [], SELECTED = null;
+var RUN = { state: 'idle' };
+var PV = null;                 /* the last preview */
+var MS = null;                 /* the machine's status */
+var FONTS = [], SAMPLES = {};
+var pending = null, saveTimer = null, saving = false, pvTimer = null, pvBusy = false, pvAgain = false;
+var tab = 'text', pvMode = 'item', progress = null, lastHeight = 0;
+
+var $ = function (id) { return document.getElementById(id); };
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function svc(method, path, body) {
+  return ffx.service.call(method, path, body).then(function (r) {
+    if (r.status === 200) return r.body;
+    throw new Error((r.body && r.body.error) || 'the Serializer answered ' + r.status);
+  });
+}
+
+function words(e) {
+  return String((e && e.message) || e).replace(/^Error: /, '');
+}
+
+function clock() {
+  return { epoch_ms: Date.now(), tz_min: -new Date().getTimezoneOffset() };
+}
+
+/* --- units ---------------------------------------------------------------------------------- */
+
+var UN = {
+  len: {
+    to: function (mm) { return UNITS === 'imperial' ? mm / 25.4 : mm; },
+    from: function (v) { return UNITS === 'imperial' ? v * 25.4 : v; },
+    dp: function () { return UNITS === 'imperial' ? 3 : 2; },
+    label: function () { return UNITS === 'imperial' ? 'in' : 'mm'; }
+  },
+  speed: {  /* stored in mm/min */
+    to: function (v) { return UNITS === 'imperial' ? v / 25.4 : v / 60; },
+    from: function (v) { return UNITS === 'imperial' ? v * 25.4 : v * 60; },
+    dp: function () { return 1; },
+    label: function () { return UNITS === 'imperial' ? 'in/min' : 'mm/s'; }
+  },
+  min: {    /* stored in seconds */
+    to: function (s) { return s / 60; },
+    from: function (v) { return v * 60; },
+    dp: function () { return 1; },
+    label: function () { return 'min'; }
+  }
+};
+
+function num(v, dp) {
+  return String(parseFloat(Number(v).toFixed(dp)));
+}
+
+function len(mm) {
+  return num(UN.len.to(mm), UNITS === 'imperial' ? 3 : 1) + ' ' + UN.len.label();
+}
+
+/* --- the profile's fields ------------------------------------------------------------------- */
+
+function getk(o, k) {
+  var parts = k.split('.');
+  for (var i = 0; i < parts.length && o != null; i++) o = o[parts[i]];
+  return o;
+}
+
+function setk(o, k, v) {
+  var parts = k.split('.');
+  for (var i = 0; i < parts.length - 1; i++) {
+    if (typeof o[parts[i]] !== 'object' || o[parts[i]] === null) o[parts[i]] = {};
+    o = o[parts[i]];
+  }
+  o[parts[parts.length - 1]] = v;
+}
+
+function change(k, v) {
+  if (!P) return;
+  setk(P, k, v);
+  pending = pending || {};
+  setk(pending, k, v);
+  scheduleSave();
+  render();
+}
+
+function changeList(k) {
+  /* A list goes whole: the service replaces it. */
+  pending = pending || {};
+  pending[k] = JSON.parse(JSON.stringify(P[k]));
+  scheduleSave();
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saved('busy', 'Saving…');
+  saveTimer = setTimeout(save, 450);
+}
+
+function save() {
+  if (!P || !pending) { if (!saving) saved('', 'Saved'); return; }
+  if (saving) { saveTimer = setTimeout(save, 200); return; }
+  var patch = pending, pid = P.id;
+  pending = null;
+  saving = true;
+  svc('POST', '/profile/patch', { id: pid, set: patch })
+    .then(function (r) {
+      saving = false;
+      PROFILES = r.profiles || PROFILES;
+      if (P && P.id === pid) {
+        P = r.profile;
+        if (pending) reapply(pending);
+      }
+      saved('', pending ? 'Saving…' : 'Saved');
+      renderProfiles();
+      fill();
+      render();
+      schedulePreview(0);
+    })
+    .catch(function (e) {
+      saving = false;
+      saved('bad', 'Not saved: ' + words(e));
+      loadProfile(pid);
+    });
+}
+
+function reapply(patch) {
+  (function walk(o, prefix) {
+    for (var k in o) {
+      var key = prefix ? prefix + '.' + k : k;
+      if (o[k] && typeof o[k] === 'object' && !Array.isArray(o[k])) walk(o[k], key);
+      else setk(P, key, JSON.parse(JSON.stringify(o[k])));
+    }
+  })(patch, '');
+}
+
+function saved(kind, text) {
+  var el = $('saved');
+  el.className = kind;
+  el.textContent = text;
+}
+
+/* Every input with data-k shows its field, in the panel's units. */
+function fill() {
+  if (!P) return;
+  var inputs = document.querySelectorAll('[data-k]');
+  for (var i = 0; i < inputs.length; i++) {
+    var el = inputs[i], k = el.getAttribute('data-k'), v = getk(P, k);
+    if (el.classList.contains('seg')) {
+      var bs = el.querySelectorAll('button');
+      for (var j = 0; j < bs.length; j++) bs[j].classList.toggle('on', String(v) === bs[j].getAttribute('data-v'));
+      continue;
+    }
+    if (el === document.activeElement) continue;
+    var u = UN[el.getAttribute('data-u')];
+    el.value = v == null ? '' : u ? num(u.to(v), u.dp()) : v;
+  }
+  var labels = document.querySelectorAll('[data-ul]');
+  for (var n = 0; n < labels.length; n++) labels[n].textContent = UN[labels[n].getAttribute('data-ul')].label();
+  if (document.activeElement !== $('text')) $('text').value = P.text;
+  if (document.activeElement !== $('notesEdit')) $('notesEdit').value = P.notes;
+  $('notesLeft').textContent = (1000 - P.notes.length) + ' characters left';
+  renderCounters();
+  renderCodes();
+}
+
+function bindFields() {
+  document.addEventListener('change', function (ev) {
+    var el = ev.target, k = el.getAttribute && el.getAttribute('data-k');
+    if (!k || el.classList.contains('seg')) return;
+    if (el.type === 'number') {
+      var v = parseFloat(el.value);
+      if (!isFinite(v)) { fill(); return; }
+      var u = UN[el.getAttribute('data-u')];
+      if (u) v = u.from(v);
+      if (el.step === '1' && !u) v = Math.round(v);
+      change(k, v);
+    } else {
+      change(k, el.value);
+    }
+  });
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('.seg[data-k] button');
+    if (!b || $('editor').disabled) return;
+    var seg = b.parentNode, k = seg.getAttribute('data-k'), v = b.getAttribute('data-v');
+    if (/^-?\d+$/.test(v) && typeof getk(P, k) === 'number') v = parseInt(v, 10);
+    change(k, v);
+    fill();
+  });
+  var textTimer = null;
+  $('text').addEventListener('input', function () {
+    clearTimeout(textTimer);
+    var v = this.value;
+    textTimer = setTimeout(function () { change('text', v); }, 300);
+  });
+  var notesTimer = null;
+  $('notesEdit').addEventListener('input', function () {
+    clearTimeout(notesTimer);
+    var v = this.value;
+    $('notesLeft').textContent = (1000 - v.length) + ' characters left';
+    notesTimer = setTimeout(function () { change('notes', v); }, 500);
+  });
+}
+
+/* --- the text tab --------------------------------------------------------------------------- */
+
+var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function pad(n, w) {
+  n = String(n);
+  while (n.length < w) n = '0' + n;
+  return n;
+}
+
+function isoWeek(d) {
+  var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  var day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  var y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return { week: Math.ceil(((t - y0) / 86400000 + 1) / 7), year: t.getUTCFullYear() };
+}
+
+function dateFields() {
+  var d = new Date(), w = isoWeek(d);
+  var doy = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 1)) / 86400000) + 1;
+  return [
+    ['Year', 'Year', String(d.getFullYear())],
+    ['Year2', 'Year, 2 digits', pad(d.getFullYear() % 100, 2)],
+    ['Year1', 'Year, last digit', String(d.getFullYear() % 10)],
+    ['Month', 'Month', pad(d.getMonth() + 1, 2)],
+    ['MonthName', 'Month name', MONTHS[d.getMonth()]],
+    ['Day', 'Day of the month', pad(d.getDate(), 2)],
+    ['DayOfYear', 'Day of the year', pad(doy, 3)],
+    ['Week', 'Week (ISO)', pad(w.week, 2)],
+    ['WeekYear', "The week's year", String(w.year)],
+    ['WeekYear2', "The week's year, 2 digits", pad(w.year % 100, 2)],
+    ['Weekday', 'Weekday, Monday is 1', String((d.getDay() + 6) % 7 + 1)],
+    ['WeekdayName', 'Weekday name', DAYS[(d.getDay() + 6) % 7]],
+    ['Hour', 'Hour, 00 to 23', pad(d.getHours(), 2)],
+    ['Minute', 'Minute', pad(d.getMinutes(), 2)]
+  ];
+}
+
+var CHECKS = [
+  ['Luhn', 'Luhn (digits)'],
+  ['GS1', 'GS1 mod 10 (digits)'],
+  ['Mod11', 'Mod 11 (digits, X for 10)'],
+  ['Mod36', 'Mod 36 (letters and digits)']
+];
+
+function insertToken(tok) {
+  var ta = $('text');
+  if ($('editor').disabled) return;
+  var s = ta.selectionStart == null ? ta.value.length : ta.selectionStart;
+  var e = ta.selectionEnd == null ? s : ta.selectionEnd;
+  ta.value = ta.value.slice(0, s) + '{' + tok + '}' + ta.value.slice(e);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = s + tok.length + 2;
+  change('text', ta.value);
+}
+
+function renderInserts() {
+  if (!P) return;
+  var o = '<option value="">Counter…</option>';
+  P.counters.forEach(function (c) { o += '<option value="' + esc(c.name) + '">{' + esc(c.name) + '}</option>'; });
+  o += '<option value="+">Add a counter…</option>';
+  setOptions($('insCounter'), o);
+  o = '<option value="">Date…</option>';
+  dateFields().forEach(function (f) { o += '<option value="' + f[0] + '">' + esc(f[1]) + ' (' + f[2] + ')</option>'; });
+  setOptions($('insDate'), o);
+  o = '<option value="">Date code…</option>';
+  P.codes.forEach(function (c) { o += '<option value="' + esc(c.name) + '">{' + esc(c.name) + '}</option>'; });
+  o += '<option value="+">Add a date code…</option>';
+  setOptions($('insCode'), o);
+  o = '<option value="">Check digit…</option>';
+  CHECKS.forEach(function (c) { o += '<option value="' + c[0] + '">' + esc(c[1]) + '</option>'; });
+  setOptions($('insCheck'), o);
+}
+
+function setOptions(sel, html) {
+  if (sel._html === html) return;
+  sel._html = html;
+  sel.innerHTML = html;
+}
+
+function bindInserts() {
+  ['insCounter', 'insDate', 'insCode', 'insCheck'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      var v = this.value;
+      this.value = '';
+      if (!v) return;
+      if (v === '+') {
+        showTab('numbers');
+        if (id === 'insCounter') addCounter(); else addCode();
+        return;
+      }
+      insertToken(v);
+    });
+  });
+}
+
+function renderSample() {
+  var el = $('sample');
+  if (!PV || !PV.item) { el.innerHTML = '<span class="lbl">The first item</span>…'; return; }
+  var first = PV.item.lines || [], slots = (PV.slots || []).filter(function (s) { return s.lines; });
+  var last = slots.length > 1 ? slots[slots.length - 1].lines : null;
+  var h = '<span class="lbl">The first item' + (last ? ' of ' + slots.length : '') + '</span>' + esc(first.join('\n'));
+  if (last) h += '\n<span class="lbl">The last item</span>' + esc(last.join('\n'));
+  el.innerHTML = h;
+}
+
+/* --- fonts ------------------------------------------------------------------------------------ */
+
+function fontOf(id) {
+  for (var i = 0; i < FONTS.length; i++) if (FONTS[i].id === id) return FONTS[i];
+  return null;
+}
+
+function sampleSvg(s) {
+  if (!s || !s.paths) return '';
+  var d = pathsD(s.paths, s.unit), w = Math.max(s.w || 50, 10);
+  var fillIt = s.closed ? 'fill="currentColor" stroke="none"' : 'fill="none" stroke="currentColor" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round"';
+  return '<svg viewBox="-0.5 -0.5 ' + (w + 1) + ' 9" preserveAspectRatio="xMinYMid meet"><path d="' + d + '" ' + fillIt + ' fill-rule="nonzero"/></svg>';
+}
+
+function loadSamples(ids) {
+  var want = ids.filter(function (id) { return !SAMPLES[id]; });
+  var batches = [];
+  for (var i = 0; i < want.length; i += 12) batches.push(want.slice(i, i + 12));
+  return batches.reduce(function (p, b) {
+    return p.then(function () {
+      return svc('POST', '/samples', { fonts: b, text: 'Serial 0123' }).then(function (r) {
+        for (var k in r.samples) SAMPLES[k] = r.samples[k];
+        renderFontPicker();
+        renderFontButton();
+      });
+    });
+  }, Promise.resolve()).catch(function () {});
+}
+
+function renderFontButton() {
+  if (!P) return;
+  var f = fontOf(P.font);
+  $('fontName').textContent = f ? f.name : P.font;
+  var s = SAMPLES[P.font];
+  $('fontSw').outerHTML = s ? sampleSvg(s).replace('<svg ', '<svg id="fontSw" ') : '<svg id="fontSw" viewBox="0 0 100 10"></svg>';
+  var line = f && f.kind === 'line';
+  $('styleRow').hidden = line;
+  $('styleHint').textContent = line ? 'A single-line font: the laser follows its lines, so it marks fast and clean.'
+    : P.style === 'fill' ? 'The letters are filled, line by line.'
+    : P.style === 'outline' ? 'Only the letters’ outlines are marked.' : 'The letters are filled, then their outlines are marked for a crisp edge.';
+}
+
+function renderFontPicker() {
+  var el = $('fontpick');
+  if (el.hidden || !P) return;
+  var groups = {}, order = [];
+  FONTS.forEach(function (f) {
+    var g = f.kind === 'line' ? 'Single-line: the laser follows the lines' : 'Outline: ' + f.category;
+    if (!groups[g]) { groups[g] = []; order.push(g); }
+    groups[g].push(f);
+  });
+  var h = '';
+  order.forEach(function (g) {
+    h += '<h4>' + esc(g) + '</h4><div class="fonts">';
+    groups[g].forEach(function (f) {
+      h += '<button data-font="' + esc(f.id) + '" class="' + (f.id === P.font ? 'on' : '') + '">' +
+        (SAMPLES[f.id] ? sampleSvg(SAMPLES[f.id]) : '<svg viewBox="0 0 10 1"></svg>') + '<span>' + esc(f.name) + '</span></button>';
+    });
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function bindFonts() {
+  $('fontBtn').addEventListener('click', function () {
+    var el = $('fontpick');
+    el.hidden = !el.hidden;
+    this.setAttribute('aria-expanded', String(!el.hidden));
+    if (!el.hidden) {
+      renderFontPicker();
+      loadSamples(FONTS.map(function (f) { return f.id; }));
+    }
+    resize();
+  });
+  $('fontpick').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-font]');
+    if (!b || $('editor').disabled) return;
+    change('font', b.getAttribute('data-font'));
+    this.hidden = true;
+    $('fontBtn').setAttribute('aria-expanded', 'false');
+    renderFontButton();
+    resize();
+  });
+}
+
+/* --- counters and codes ------------------------------------------------------------------------ */
+
+var KINDS = [['dec', 'Digits 0-9'], ['alpha', 'Letters A-Z'], ['alnum', 'Digits and letters'], ['hex', 'Hexadecimal 0-F'], ['custom', 'My own characters']];
+
+function sel(cls, value, opts) {
+  var h = '<select class="' + cls + '">';
+  opts.forEach(function (o) { h += '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(value) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; });
+  return h + '</select>';
+}
+
+function renderCounters() {
+  var el = $('counters');
+  if (!P || el.contains(document.activeElement)) return;
+  var h = '';
+  P.counters.forEach(function (c, i) {
+    var others = P.counters.filter(function (o, j) { return j !== i; }).map(function (o) { return [o.name, o.name]; });
+    var after = PV && PV.next ? PV.next[c.name] : null;
+    h += '<div class="card" data-i="' + i + '">' +
+      '<div class="head"><input type="text" class="name" value="' + esc(c.name) + '" maxlength="24" aria-label="Name">' +
+      '<label>Next <input type="text" class="nextv" data-f="next" value="' + esc(c.next) + '" aria-label="Next value"></label>' +
+      '<span class="grow"></span><button class="rm">Remove</button></div>' +
+      '<div class="row">' + sel('type', c.type, KINDS) +
+      (c.type === 'custom' ? '<input type="text" data-f="alphabet" value="' + esc(c.alphabet) + '" placeholder="0123456789ABCDEF" style="width:210px" aria-label="Characters, lowest first">' : '') +
+      ((c.type === 'alpha' || c.type === 'alnum') ? '<label><input type="checkbox" data-f="no_lookalikes"' + (c.no_lookalikes ? ' checked' : '') + '> leave out I, O and Q</label>' : '') +
+      '</div><div class="row">' +
+      '<label title="How many characters, padded with leading zeros (or A). 0: no padding.">Width <input type="number" data-f="width" min="0" max="16" step="1" value="' + c.width + '"></label>' +
+      '<label title="How much it moves on each time.">Step <input type="number" data-f="step" min="1" step="1" value="' + c.step + '"></label>' +
+      '<label title="Where it starts over.">First <input type="text" data-f="first" value="' + esc(c.first) + '" style="width:110px"></label>' +
+      '<label title="The highest it goes. Blank: as high as its width allows.">Last <input type="text" data-f="last" value="' + esc(c.last) + '" style="width:110px" placeholder="no limit"></label>' +
+      '</div><div class="row">' +
+      '<label>Moves on ' + sel('advance', c.advance, [['item', 'for each item'], ['cycle', 'once each cycle'], ['carry', 'when another counter starts over']]) + '</label>' +
+      (c.advance === 'carry' ? sel('carry', c.carry_from, [['', 'pick a counter']].concat(others)) : '') +
+      '<label>At its last value ' + sel('atend', c.at_end, [['stop', 'the run stops'], ['wrap', 'it starts over at First']]) + '</label>' +
+      '</div>' +
+      '<div class="hint">' + (after ? 'After the next cycle: <b>' + esc(after.replace(/\+$/, '')) + '</b>' +
+        (/\+$/.test(after) ? ', its last value: the run stops there.' : '.') : '') + '</div>' +
+      '</div>';
+  });
+  el.innerHTML = h || '<p class="hint">No counters.</p>';
+}
+
+function counterEdit(ev) {
+  var card = ev.target.closest('.card[data-i]');
+  if (!card || !P) return;
+  var c = P.counters[+card.getAttribute('data-i')], t = ev.target, f = t.getAttribute('data-f');
+  if (t.classList.contains('name')) {
+    var old = c.name, nw = t.value.replace(/[^A-Za-z0-9]/g, '');
+    if (!nw) { t.value = old; return; }
+    c.name = nw;
+    P.counters.forEach(function (o) { if (o.carry_from === old) o.carry_from = nw; });
+    if (old !== nw) {
+      var re = new RegExp('\\{' + old + '\\}', 'gi');
+      P.text = P.text.replace(re, '{' + nw + '}');
+      pending = pending || {};
+      pending.text = P.text;
+      $('text').value = P.text;
+    }
+  } else if (t.classList.contains('type')) c.type = t.value;
+  else if (t.classList.contains('advance')) c.advance = t.value;
+  else if (t.classList.contains('carry')) c.carry_from = t.value;
+  else if (t.classList.contains('atend')) c.at_end = t.value;
+  else if (f === 'no_lookalikes') c.no_lookalikes = t.checked;
+  else if (f === 'width' || f === 'step') c[f] = Math.max(f === 'step' ? 1 : 0, parseInt(t.value, 10) || 0);
+  else if (f) c[f] = t.value.trim();
+  else return;
+  changeList('counters');
+  renderInserts();
+  if (t.tagName === 'SELECT' || t.type === 'checkbox') { t.blur(); renderCounters(); }
+}
+
+function addCounter() {
+  if (!P || P.counters.length >= 6) return;
+  var names = P.counters.map(function (c) { return c.name.toLowerCase(); }), n = 1, name = 'Serial';
+  while (names.indexOf(name.toLowerCase()) >= 0) name = 'Counter' + (++n);
+  P.counters.push({ name: name, type: 'dec', alphabet: '', no_lookalikes: false, width: 4, first: '0001', last: '', step: 1,
+    next: '0001', advance: 'item', carry_from: '', at_end: 'stop' });
+  changeList('counters');
+  renderCounters();
+  renderInserts();
+}
+
+var CODE_OF = [['month', 'the month'], ['weekday', 'the weekday'], ['day', 'the day of the month'], ['hour', 'the hour'], ['week', 'the week'], ['year', 'the year']];
+
+function codeSlots(c) {
+  if (c.of === 'month') return MONTHS;
+  if (c.of === 'weekday') return DAYS;
+  var out = [], i;
+  if (c.of === 'day') for (i = 1; i <= 31; i++) out.push(String(i));
+  if (c.of === 'hour') for (i = 0; i < 24; i++) out.push(pad(i, 2));
+  if (c.of === 'week') for (i = 1; i <= 53; i++) out.push('W' + i);
+  if (c.of === 'year') for (i = 0; i < Math.min(60, Math.max(c.values.length + 1, 10)); i++) out.push(String(c.base_year + i));
+  return out;
+}
+
+function renderCodes() {
+  var el = $('codes');
+  if (!P || el.contains(document.activeElement)) return;
+  var h = '';
+  P.codes.forEach(function (c, i) {
+    h += '<div class="card" data-i="' + i + '"><div class="head">' +
+      '<input type="text" class="name" value="' + esc(c.name) + '" maxlength="24" aria-label="Name">' +
+      '<label>for ' + sel('of', c.of, CODE_OF) + '</label>' +
+      (c.of === 'year' ? '<label>first year <input type="number" class="base" value="' + c.base_year + '" step="1" min="1970" max="2200"></label>' : '') +
+      '<span class="grow"></span><button class="rm">Remove</button></div><div class="codes">';
+    codeSlots(c).forEach(function (label, j) {
+      h += '<label>' + esc(label) + ' <input type="text" data-j="' + j + '" maxlength="8" value="' + esc(c.values[j] || '') + '"></label>';
+    });
+    h += '</div></div>';
+  });
+  el.innerHTML = h || '<p class="hint">No date codes.</p>';
+}
+
+function codeEdit(ev) {
+  var card = ev.target.closest('.card[data-i]');
+  if (!card || !P) return;
+  var c = P.codes[+card.getAttribute('data-i')], t = ev.target;
+  if (t.classList.contains('name')) {
+    var old = c.name, nw = t.value.replace(/[^A-Za-z0-9]/g, '');
+    if (!nw) { t.value = old; return; }
+    c.name = nw;
+    if (old !== nw) {
+      P.text = P.text.replace(new RegExp('\\{' + old + '\\}', 'gi'), '{' + nw + '}');
+      pending = pending || {};
+      pending.text = P.text;
+      $('text').value = P.text;
+    }
+  } else if (t.classList.contains('of')) { c.of = t.value; c.values = []; }
+  else if (t.classList.contains('base')) c.base_year = parseInt(t.value, 10) || c.base_year;
+  else if (t.hasAttribute('data-j')) {
+    var j = +t.getAttribute('data-j');
+    while (c.values.length < j) c.values.push('');
+    c.values[j] = t.value.trim();
+    while (c.values.length && !c.values[c.values.length - 1]) c.values.pop();
+  } else return;
+  changeList('codes');
+  renderInserts();
+  if (t.tagName === 'SELECT') { t.blur(); renderCodes(); }
+}
+
+function addCode() {
+  if (!P || P.codes.length >= 6) return;
+  var names = P.codes.map(function (c) { return c.name.toLowerCase(); }), n = 1, name = 'MonthCode';
+  while (names.indexOf(name.toLowerCase()) >= 0) name = 'Code' + (++n);
+  P.codes.push({ name: name, of: 'month', base_year: new Date().getFullYear(), values: 'ABCDEFGHJKLM'.split('') });
+  changeList('codes');
+  renderCodes();
+  renderInserts();
+}
+
+function bindLists() {
+  $('counters').addEventListener('change', counterEdit);
+  $('codes').addEventListener('change', codeEdit);
+  $('counters').addEventListener('click', function (ev) {
+    var b = ev.target.closest('.rm');
+    if (!b || $('editor').disabled) return;
+    P.counters.splice(+b.closest('.card').getAttribute('data-i'), 1);
+    changeList('counters');
+    renderCounters();
+    renderInserts();
+  });
+  $('codes').addEventListener('click', function (ev) {
+    var b = ev.target.closest('.rm');
+    if (!b || $('editor').disabled) return;
+    P.codes.splice(+b.closest('.card').getAttribute('data-i'), 1);
+    changeList('codes');
+    renderCodes();
+    renderInserts();
+  });
+  $('counters').addEventListener('focusout', function () { setTimeout(renderCounters, 0); });
+  $('codes').addEventListener('focusout', function () { setTimeout(renderCodes, 0); });
+  $('addCounter').addEventListener('click', addCounter);
+  $('addCode').addEventListener('click', addCode);
+  $('fieldref').addEventListener('click', function (ev) {
+    var c = ev.target.closest('code[data-tok]');
+    if (!c) return;
+    showTab('text');
+    insertToken(c.getAttribute('data-tok'));
+  });
+}
+
+function renderFieldRef() {
+  var h = '';
+  dateFields().forEach(function (f) {
+    h += '<code data-tok="' + f[0] + '" title="Put it in the text">{' + f[0] + '}</code><span class="ex">' + esc(f[2]) + '</span><span>' + esc(f[1]) + '</span>';
+  });
+  CHECKS.forEach(function (c) {
+    h += '<code data-tok="' + c[0] + '" title="Put it in the text">{' + c[0] + '}</code><span class="ex"></span><span>Check digit: ' + esc(c[1]) + ', from what comes before it on its line</span>';
+  });
+  $('fieldref').innerHTML = h;
+}
+
+/* --- the preview --------------------------------------------------------------------------------- */
+
+function pathsD(paths, unit) {
+  var d = '';
+  for (var i = 0; i < paths.length; i++) {
+    var p = paths[i], x = p[0], y = p[1];
+    d += 'M' + num(x * unit, 3) + ' ' + num(y * unit, 3);
+    for (var j = 2; j < p.length; j += 2) {
+      x += p[j];
+      y += p[j + 1];
+      d += 'L' + num(x * unit, 3) + ' ' + num(y * unit, 3);
+    }
+  }
+  return d;
+}
+
+function schedulePreview(ms) {
+  clearTimeout(pvTimer);
+  pvTimer = setTimeout(preview, ms == null ? 300 : ms);
+}
+
+function preview() {
+  if (!P) return;
+  if (pvBusy) { pvAgain = true; return; }
+  pvBusy = true;
+  var pid = P.id;
+  svc('POST', '/preview', { id: pid, clock: clock(), units: UNITS })
+    .then(function (r) { if (P && P.id === pid) { PV = r; PV.at = Date.now(); } })
+    .catch(function (e) { PV = { errors: [words(e)] }; })
+    .then(function () {
+      pvBusy = false;
+      renderPreview();
+      renderRun();
+      renderCounters();
+      if (pvAgain) { pvAgain = false; schedulePreview(0); }
+    });
+}
+
+function renderPreview() {
+  renderSample();
+  var msgs = '';
+  if (PV) {
+    (PV.errors || []).forEach(function (e) { msgs += '<div class="msg bad">' + esc(e) + '</div>'; });
+    (PV.warnings || []).forEach(function (e) { msgs += '<div class="msg warn">' + esc(e) + '</div>'; });
+  }
+  $('pvMsgs').innerHTML = msgs;
+  var dot = PV && PV.errors && PV.errors.length;
+  var tb = document.querySelector('#tabs button[data-tab="text"]');
+  if (tb) tb.innerHTML = 'Text' + (dot ? '<span class="dot" title="Something needs fixing"></span>' : '');
+  if (!PV || !PV.item) { $('pvItem').innerHTML = ''; $('pvInfo').innerHTML = ''; return; }
+  drawItem();
+  drawBed();
+  var it = PV.item, info = '';
+  if (it.ink) {
+    info += '<span class="k">Text</span> ' + len(it.ink[2] - it.ink[0]) + ' × ' + len(it.ink[3] - it.ink[1]) +
+      ' <span class="k">in a box of</span> ' + len(it.box[0]) + ' × ' + len(it.box[1]);
+  } else info += '<span class="k">Nothing to draw yet.</span>';
+  if (PV.program) {
+    var pr = PV.program;
+    info += '<br><span class="k">Each cycle</span> ' + pr.items + ' item' + (pr.items === 1 ? '' : 's') +
+      ' · <span class="k">about</span> ' + duration(pr.seconds) +
+      ' · <span class="k">program</span> ' + size(pr.bytes) + ' <span class="k">of</span> ' + size(pr.max_bytes);
+  }
+  $('pvInfo').innerHTML = info;
+  $('pvWhen').textContent = PV.at ? 'Dates as of ' + new Date(PV.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+}
+
+function duration(s) {
+  if (s < 60) return Math.max(1, Math.round(s)) + ' s';
+  var m = Math.floor(s / 60), r = Math.round(s % 60);
+  return m + ' min' + (r ? ' ' + r + ' s' : '');
+}
+
+function size(b) {
+  return b < 1024 ? b + ' B' : b < 1048576 ? Math.round(b / 1024) + ' KB' : num(b / 1048576, 1) + ' MB';
+}
+
+function dimH(x0, x1, y, label, fs) {
+  var t = fs * 0.35;
+  return '<g class="dim"><path d="M' + x0 + ' ' + (y - t) + 'V' + (y + t) + 'M' + x1 + ' ' + (y - t) + 'V' + (y + t) + 'M' + x0 + ' ' + y + 'H' + x1 + '"/>' +
+    '<text x="' + ((x0 + x1) / 2) + '" y="' + (y - fs * 0.45) + '" text-anchor="middle" font-size="' + fs + '">' + esc(label) + '</text></g>';
+}
+
+function dimV(y0, y1, x, label, fs) {
+  var t = fs * 0.35;
+  return '<g class="dim"><path d="M' + (x - t) + ' ' + y0 + 'H' + (x + t) + 'M' + (x - t) + ' ' + y1 + 'H' + (x + t) + 'M' + x + ' ' + y0 + 'V' + y1 + '"/>' +
+    '<text x="' + (x + fs * 0.5) + '" y="' + ((y0 + y1) / 2 + fs * 0.35) + '" font-size="' + fs + '">' + esc(label) + '</text></g>';
+}
+
+function drawItem() {
+  var it = PV.item, bw = it.box[0], bh = it.box[1];
+  var span = Math.max(bw, bh * 2.2), fs = span * 0.045, m = fs * 2.6;
+  var ink = it.ink || [0, 0, 0, 0];
+  var x0 = Math.min(0, ink[0]), y0 = Math.min(0, ink[1]), x1 = Math.max(bw, ink[2]), y1 = Math.max(bh, ink[3]);
+  var vb = [x0 - m * 0.4, y0 - m, (x1 - x0) + m * 0.4 + m * 2.4, (y1 - y0) + m * 1.4];
+  var d = pathsD(it.paths, it.unit), style = PV.style, g = '';
+  var sw = Math.max(span * 0.004, 0.08);
+  if (it.closed && (style === 'fill' || style === 'fill_outline')) g += '<path d="' + d + '" fill="currentColor" fill-rule="nonzero" stroke="none"/>';
+  if (!it.closed || style === 'outline' || style === 'fill_outline')
+    g += '<path d="' + d + '" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round"/>';
+  var over = PV.item.ink && (ink[0] < -0.01 || ink[1] < -0.01 || ink[2] > bw + 0.01 || ink[3] > bh + 0.01);
+  var svg = '<style>.dim path{stroke:var(--dim);stroke-width:' + sw + ';fill:none}.dim text{fill:var(--dim)}</style>' +
+    '<rect x="0" y="0" width="' + bw + '" height="' + bh + '" fill="var(--card)" stroke="' + (over ? 'var(--bad)' : 'var(--dim)') +
+    '" stroke-width="' + sw + '" stroke-dasharray="' + (sw * 6) + ' ' + (sw * 4) + '"/>' +
+    '<g style="color:var(--ink)">' + g + '</g>';
+  if (it.ink) {
+    svg += dimH(ink[0], ink[2], y0 - m * 0.45, len(ink[2] - ink[0]), fs);
+    svg += dimV(ink[1], ink[3], x1 + m * 0.35, len(ink[3] - ink[1]), fs);
+  }
+  svg += '<circle cx="0" cy="0" r="' + fs * 0.28 + '" fill="var(--mark)"><title>The box’s top-left corner</title></circle>';
+  var el = $('pvItem');
+  el.setAttribute('viewBox', vb.map(function (v) { return num(v, 3); }).join(' '));
+  el.innerHTML = svg;
+}
+
+var wholeBed = false;
+
+function drawBed() {
+  var el = $('pvBed');
+  if (!PV || !PV.slots) { el.innerHTML = ''; return; }
+  var W = 495, H = 279, bw = PV.box_bed[0], bh = PV.box_bed[1], skip = (P.grid.skip || []);
+  var head = MS && MS.pos && (MS.homed_axes & 3) === 3 ? MS.pos : null;
+  /* The view: the whole bed, or the items with the start point and the head around them. */
+  var x0 = 0, y0 = 0, x1 = W, y1 = H;
+  if (!wholeBed) {
+    x0 = y0 = Infinity; x1 = y1 = -Infinity;
+    var take = function (x, y) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); };
+    PV.slots.forEach(function (s) { take(s.x, s.y); take(s.x + bw, s.y + bh); });
+    if (PV.start) take(PV.start[0], PV.start[1]);
+    var span = Math.max(x1 - x0, (y1 - y0) * 1.6, 40), m = span * 0.08 + 4;
+    x0 -= m; y0 -= m; x1 += m; y1 += m;
+    if ((x1 - x0) / (y1 - y0) < 1.6) { var grow = ((y1 - y0) * 1.6 - (x1 - x0)) / 2; x0 -= grow; x1 += grow; }
+  } else { x0 -= 8; y0 -= 12; x1 += 8; y1 += 8; }
+  var vw = x1 - x0, fs = vw / 55, sw = vw / 500;
+  el.setAttribute('viewBox', [x0, y0, vw, y1 - y0].map(function (v) { return num(v, 2); }).join(' '));
+  var h = '<style>.gl{stroke:var(--soft)}.slot text{fill:var(--ink)}</style>';
+  h += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="var(--card)" stroke="var(--dim)" stroke-width="' + sw * 1.5 + '"/>';
+  var grid = vw > 200 ? 50 : vw > 60 ? 10 : 5;
+  for (var gx = grid; gx < W; gx += grid) if (gx > x0 && gx < x1) h += '<path class="gl" stroke-width="' + sw + '" d="M' + gx + ' 0V' + H + '"/>';
+  for (var gy = grid; gy < H; gy += grid) if (gy > y0 && gy < y1) h += '<path class="gl" stroke-width="' + sw + '" d="M0 ' + gy + 'H' + W + '"/>';
+  if (y0 < 0) h += '<text x="' + Math.max(x0 + fs * 0.3, 2) + '" y="' + (-fs * 0.35) + '" font-size="' + fs * 0.8 + '" fill="var(--dim)">Back of the machine</text>';
+  /* Each item's text in its box, in the box's own frame (before the turn), then turned as the profile turns it. */
+  var rot = P.rotation || 0, rw = rot % 180 ? bh : bw, rh = rot % 180 ? bw : bh;
+  var turn = rot === 90 ? 'translate(' + rh + ' 0) rotate(90)' : rot === 180 ? 'translate(' + rw + ' ' + rh + ') rotate(180)'
+    : rot === 270 ? 'translate(0 ' + rw + ') rotate(270)' : '';
+  var ha = P.box.halign, va = P.box.valign;
+  var ax = ha === 'center' ? rw / 2 : ha === 'right' ? rw * 0.97 : rw * 0.03;
+  var anchor = ha === 'center' ? 'middle' : ha === 'right' ? 'end' : 'start';
+  var n = 0;
+  PV.slots.forEach(function (s) {
+    var off = skip.indexOf(s.i) >= 0;
+    if (!off) n++;
+    var tip = off ? 'Left out: click to mark it' : 'Item ' + n + ': ' + (s.lines || []).join(' / ') + ' (click to leave it out)';
+    h += '<g class="slot" data-i="' + s.i + '"><title>' + esc(tip) + '</title><rect x="' + s.x + '" y="' + s.y + '" width="' + bw + '" height="' + bh + '" rx="' + sw * 2 + '" stroke-width="' + sw * 1.5 + '" ' +
+      (off ? 'fill="var(--card)" stroke="var(--dim)" stroke-dasharray="' + sw * 5 + ' ' + sw * 4 + '"' : 'fill="var(--sel)" stroke="var(--act)"') + '/>';
+    if (off) h += '<path d="M' + s.x + ' ' + s.y + 'l' + bw + ' ' + bh + 'm0 -' + bh + 'l-' + bw + ' ' + bh + '" stroke="var(--dim)" stroke-width="' + sw + '"/>';
+    else if (s.lines && s.lines.length) {
+      var lines = s.lines, longest = 1;
+      lines.forEach(function (t) { longest = Math.max(longest, t.length); });
+      var lf = Math.min(rh * 0.9 / (lines.length * 1.2), rw * 0.94 / (longest * 0.6));
+      if (lf > fs * 0.2) {
+        var block = lf * (1.2 * lines.length - 0.2);
+        var top = va === 'middle' ? (rh - block) / 2 : va === 'bottom' ? rh - block - rh * 0.04 : rh * 0.04;
+        h += '<g transform="translate(' + s.x + ' ' + s.y + ') ' + turn + '" font-size="' + lf + '" text-anchor="' + anchor +
+          '" font-family="ui-monospace,Consolas,monospace">';
+        lines.forEach(function (t, i) {
+          h += '<text x="' + ax + '" y="' + (top + lf * (1.2 * i + 0.8)) + '" xml:space="preserve">' + esc(t) + '</text>';
+        });
+        h += '</g>';
+      }
+    }
+    h += '</g>';
+  });
+  if (PV.start) {
+    var sx = PV.start[0], sy = PV.start[1], f = PV.slots[0];
+    if (f) h += '<path d="M' + sx + ' ' + sy + 'L' + f.x + ' ' + f.y + '" stroke="var(--mark)" stroke-width="' + sw * 1.5 + '" stroke-dasharray="' + sw * 4 + ' ' + sw * 3 + '"/>';
+    h += '<circle cx="' + sx + '" cy="' + sy + '" r="' + fs * 0.35 + '" fill="var(--mark)"><title>The start point</title></circle>';
+  }
+  if (head) {
+    var r = fs * 0.5;
+    h += '<g stroke="var(--ink)" stroke-width="' + sw * 1.5 + '" fill="none"><title>The head is here</title><circle cx="' + head.x + '" cy="' + head.y + '" r="' + r + '"/><path d="M' + (head.x - r * 1.6) + ' ' + head.y + 'h' + r * 3.2 + 'M' + head.x + ' ' + (head.y - r * 1.6) + 'v' + r * 3.2 + '"/></g>';
+  }
+  el.innerHTML = h;
+}
+
+function bindPreview() {
+  $('pvMode').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b) return;
+    pvMode = b.getAttribute('data-v');
+    var bs = this.querySelectorAll('button');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i] === b);
+    /* An SVG element has no hidden property: the attribute is what the stylesheet hides. */
+    $('pvItem').toggleAttribute('hidden', pvMode !== 'item');
+    $('pvBed').toggleAttribute('hidden', pvMode !== 'bed');
+    $('pvLegend').hidden = pvMode !== 'bed';
+    resize();
+  });
+  $('pvBed').addEventListener('click', function (ev) {
+    var g = ev.target.closest('.slot');
+    if (!g || !P || $('editor').disabled) return;
+    var i = +g.getAttribute('data-i'), skip = (P.grid.skip || []).slice(), k = skip.indexOf(i);
+    if (k >= 0) skip.splice(k, 1); else skip.push(i);
+    skip.sort(function (a, b) { return a - b; });
+    change('grid.skip', skip);
+    drawBed();
+  });
+  $('wholeBed').addEventListener('change', function () { wholeBed = this.checked; drawBed(); });
+  $('fitBox').addEventListener('click', function () {
+    if (!PV || !PV.item || !PV.item.ink) return;
+    change('box.w', Math.ceil(PV.item.text_w * 10 + 0.001) / 10);
+    change('box.h', Math.ceil(PV.item.text_h * 10 + 0.001) / 10);
+    fill();
+  });
+  $('useHere').addEventListener('click', function () {
+    if (!MS || !MS.pos) return;
+    change('start.x', Math.round(MS.pos.x * 100) / 100);
+    change('start.y', Math.round(MS.pos.y * 100) / 100);
+    fill();
+  });
+}
+
+/* --- the run ---------------------------------------------------------------------------------------- */
+
+var STEP = { wait_close: 'load', cooling: 'load', sending: 'load', wait_press: 'press', running: 'mark', wait_open: 'reload', ready: 'load' };
+
+function machineOk() {
+  if (!MS) return 'The machine does not answer.';
+  if ((MS.homed_axes & 3) !== 3) return 'Home the machine first.';
+  var rep = MS.grbl && MS.grbl.report;
+  if (!rep) return 'The GRBL controller is not running.';
+  if (rep.alarm) return 'The machine is in an alarm (' + rep.alarm + '). Clear it from your Grbl sender ($X), or home the machine.';
+  return '';
+}
+
+function renderRun() {
+  var s = RUN.state || 'idle', r = RUN.run, live = !!r;
+  var mine = live && P && r.profile === P.id;
+  $('run').classList.toggle('live', live);
+  var title = '', sub = '';
+  if (!live) {
+    var why = machineOk() || (PV && PV.errors && PV.errors.length ? 'Fix what the preview points out first.' : '');
+    title = why ? 'Not ready' : 'Ready to start';
+    if (why) sub = why;
+    else if (PV && PV.item) {
+      var slots = (PV.slots || []).filter(function (x) { return x.lines; });
+      sub = slots.length > 1 ? 'The next cycle marks ' + slots.length + ' items: ' + (slots[0].lines[0] || '') + ' to ' + (slots[slots.length - 1].lines[0] || '')
+        : 'The next cycle marks ' + ((PV.item.lines || [])[0] || '');
+      sub += (P && P.start.mode === 'current') ? '. It starts where the head is when you press Start.' : '.';
+    }
+    $('bStart').disabled = !!why || !P;
+  } else {
+    var name = esc(r.name), first = (r.first || [])[0] || '', last = (r.last || [])[0] || '';
+    title = {
+      wait_close: 'Load the items and close the lid',
+      cooling: 'Waiting for the cooling',
+      sending: 'Preparing the cycle',
+      wait_press: r.pressed ? 'Starting the cycle' : 'Press the button on the machine',
+      running: r.paused ? 'Paused' : 'Marking cycle ' + r.cycle,
+      wait_open: 'Open the lid and change the items',
+      ready: 'The cycle was not marked'
+    }[s] || s;
+    sub = name + ' · ' + r.done + ' cycle' + (r.done === 1 ? '' : 's') + ' done';
+    if (s === 'wait_press' || s === 'running') sub += ' · cycle ' + r.cycle + ': ' + esc(first) + (r.items > 1 ? ' to ' + esc(last) : '');
+    if (s === 'wait_press' && !r.pressed && RUN.press_left_s != null) sub += ' · ' + clockText(RUN.press_left_s) + ' left to press';
+    if (r.stop_after) sub += ' · stops after this cycle';
+    sub = '<span>' + sub + '</span>';
+  }
+  $('runTitle').textContent = title;
+  $('runSub').innerHTML = live ? sub : esc(sub);
+  $('bStart').hidden = live;
+  $('bSend').hidden = !(live && s === 'ready');
+  $('bStopAfter').hidden = !(live && s === 'running' && !r.stop_after);
+  $('bStopNow').hidden = !(live && s === 'running');
+  $('bStop').hidden = !(live && s !== 'running');
+  $('steps').hidden = !live;
+  var cur = STEP[s], passed = true, lis = $('steps').querySelectorAll('li');
+  for (var i = 0; i < lis.length; i++) {
+    var me = lis[i].getAttribute('data-s') === cur;
+    if (me) passed = false;
+    lis[i].className = me ? 'now' : '';
+  }
+  $('progress').hidden = !(live && s === 'running' && progress != null);
+  if (progress != null) $('progress').firstElementChild.style.width = Math.round(progress * 100) + '%';
+  var note = RUN.note || {};
+  var nk = note.kind || 'info';
+  $('runNote').className = 'msg ' + nk;
+  /* While a run goes, the title says what an info note would; the others say what happened. */
+  $('runNote').textContent = note.text && !(live && nk === 'info' && s !== 'cooling') ? note.text : '';
+  var cap = 'What the next cycle marks.';
+  if (mine && s === 'wait_press') cap = 'Cycle ' + r.cycle + ', waiting for the press.';
+  else if (mine && s === 'running') cap = 'The cycle after this one.';
+  $('pvCap').textContent = cap;
+  var notes = P && P.notes ? P.notes : '';
+  $('notes').hidden = !notes;
+  $('notesText').textContent = notes;
+  $('editor').disabled = !!mine;
+  $('locked').hidden = !mine;
+  var bs = $('profbtns').querySelectorAll('button');
+  for (var j = 0; j < bs.length; j++) bs[j].disabled = !!mine && (bs[j].id === 'pDelete' || bs[j].id === 'pRename');
+  renderMachine();
+}
+
+function clockText(s) {
+  return Math.floor(s / 60) + ':' + pad(s % 60, 2);
+}
+
+function renderMachine() {
+  if (!MS) { $('machine').textContent = ''; return; }
+  var bits = [];
+  bits.push((MS.homed_axes & 3) === 3 ? 'homed' : '<span class="no">not homed</span>');
+  bits.push('lid <b>' + (MS.switches && MS.switches.lid ? 'closed' : 'open') + '</b>');
+  if (MS.pos && (MS.homed_axes & 3) === 3) bits.push('head at X <b>' + num(UN.len.to(MS.pos.x), UNITS === 'imperial' ? 3 : 1) + '</b> Y <b>' + num(UN.len.to(MS.pos.y), UNITS === 'imperial' ? 3 : 1) + '</b> ' + UN.len.label());
+  if (MS.lens) bits.push('crumb tray <b>' + MS.lens.tray + '</b>');
+  var rep = MS.grbl && MS.grbl.report;
+  if (rep && rep.alarm) bits.push('<span class="no">alarm ' + rep.alarm + '</span>');
+  $('machine').innerHTML = 'Machine: ' + bits.join(' · ');
+  $('startHint').textContent = P && P.start.mode === 'current'
+    ? 'The layout follows the head: jog it (or use the alignment tool) to your start spot, then press Start. The head goes back there after each cycle.'
+    : 'The same spot every time, in the machine’s coordinates from its home corner. The head goes back there after each cycle.';
+  $('fixedRow').hidden = !P || P.start.mode !== 'fixed';
+}
+
+function bindRun() {
+  $('bStart').addEventListener('click', function () {
+    if (!P) return;
+    var b = this;
+    b.disabled = true;
+    flushSave().then(function () {
+      return svc('POST', '/run/start', { id: P.id, clock: clock(), units: UNITS });
+    }).then(function (v) { RUN = v; renderRun(); })
+      .catch(function (e) { RUN.note = { kind: 'bad', text: words(e) }; renderRun(); })
+      .then(function () { b.disabled = false; poll(); });
+  });
+  $('bSend').addEventListener('click', function () {
+    svc('POST', '/run/send', {}).then(function (v) { RUN = v; renderRun(); })
+      .catch(function (e) { RUN.note = { kind: 'bad', text: words(e) }; renderRun(); });
+  });
+  $('bStop').addEventListener('click', function () { stop(true); });
+  $('bStopNow').addEventListener('click', function () { stop(true); });
+  $('bStopAfter').addEventListener('click', function () { stop(false); });
+}
+
+function stop(now) {
+  svc('POST', '/run/stop', { now: now }).then(function (v) { RUN = v; renderRun(); loadLog(); })
+    .catch(function (e) { RUN.note = { kind: 'bad', text: words(e) }; renderRun(); });
+}
+
+function flushSave() {
+  if (!pending && !saving) return Promise.resolve();
+  clearTimeout(saveTimer);
+  return new Promise(function (ok) {
+    (function wait() {
+      if (pending && !saving) save();
+      if (!pending && !saving) return ok();
+      setTimeout(wait, 100);
+    })();
+  });
+}
+
+/* --- profiles --------------------------------------------------------------------------------------- */
+
+function renderProfiles() {
+  var h = '';
+  PROFILES.forEach(function (p) { h += '<option value="' + esc(p.id) + '"' + (P && p.id === P.id ? ' selected' : '') + '>' + esc(p.name) + '</option>'; });
+  setOptions($('profile'), h);
+  if (P) $('profile').value = P.id;
+}
+
+function loadProfile(pid) {
+  return svc('POST', '/profile', { id: pid }).then(function (r) {
+    /* The same profile read again (its counters moved on) keeps the edits still on their way. */
+    var same = P && P.id === r.profile.id, keep = same && pending;
+    P = r.profile;
+    if (keep) reapply(keep);
+    else pending = null;
+    if (!same) PV = null;
+    renderProfiles();
+    fill();
+    render();
+    schedulePreview(0);
+  });
+}
+
+function bindProfiles() {
+  $('profile').addEventListener('change', function () {
+    var pid = this.value;
+    flushSave().then(function () {
+      svc('POST', '/select', { id: pid }).catch(function () {});
+      return loadProfile(pid);
+    });
+  });
+  $('pNew').addEventListener('click', function () { newProfile(null); });
+  $('pCopy').addEventListener('click', function () { if (P) newProfile(P.id); });
+  $('pRename').addEventListener('click', function () {
+    $('profbtns').hidden = true;
+    $('rename').hidden = false;
+    $('renameText').value = P.name;
+    $('renameText').focus();
+    $('renameText').select();
+  });
+  function renameDone(ok) {
+    var name = $('renameText').value.trim();
+    $('rename').hidden = true;
+    $('profbtns').hidden = false;
+    if (ok && name && name !== P.name) change('name', name);
+  }
+  $('renameOk').addEventListener('click', function () { renameDone(true); });
+  $('renameNo').addEventListener('click', function () { renameDone(false); });
+  $('renameText').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') renameDone(true);
+    if (ev.key === 'Escape') renameDone(false);
+  });
+  $('pDelete').addEventListener('click', function () {
+    $('profbtns').hidden = true;
+    $('delask').hidden = false;
+  });
+  $('delNo').addEventListener('click', function () { $('delask').hidden = true; $('profbtns').hidden = false; });
+  $('delYes').addEventListener('click', function () {
+    $('delask').hidden = true;
+    $('profbtns').hidden = false;
+    svc('POST', '/profile/delete', { id: P.id }).then(function (r) {
+      PROFILES = r.profiles;
+      return loadProfile(r.selected);
+    }).catch(function (e) { saved('bad', words(e)); });
+  });
+}
+
+function newProfile(from) {
+  flushSave().then(function () {
+    return svc('POST', '/profile/new', { from: from });
+  }).then(function (r) {
+    PROFILES = r.profiles;
+    P = r.profile;
+    PV = null;
+    renderProfiles();
+    fill();
+    render();
+    schedulePreview(0);
+    saved('', from ? 'Copied' : 'Made a new profile');
+  }).catch(function (e) { saved('bad', words(e)); });
+}
+
+/* --- tabs, the log, and the frame -------------------------------------------------------------------- */
+
+function showTab(t) {
+  tab = t;
+  var bs = $('tabs').querySelectorAll('button');
+  for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-tab') === t);
+  ['text', 'numbers', 'layout', 'laser', 'notes'].forEach(function (x) { $('tab-' + x).hidden = x !== t; });
+  if (t === 'layout' && pvMode !== 'bed') document.querySelector('#pvMode button[data-v="bed"]').click();
+  if (t === 'text' && pvMode !== 'item') document.querySelector('#pvMode button[data-v="item"]').click();
+  resize();
+}
+
+function render() {
+  if (!P) return;
+  renderInserts();
+  renderFontButton();
+  renderRun();
+  var f = fontOf(P.font), line = f && f.kind === 'line', st = P.style;
+  var usesLine = line || st === 'outline' || st === 'fill_outline', usesFill = !line && (st === 'fill' || st === 'fill_outline');
+  $('lineUse').textContent = usesLine ? (line ? 'For this single-line font.' : 'For the letters’ outlines.') : 'Not used by this font as it is set up now.';
+  $('fillUse').textContent = usesFill ? 'For filling the letters.' : 'Not used by this font as it is set up now.';
+  $('lineHead').style.opacity = usesLine ? 1 : 0.55;
+  $('fillHead').style.opacity = usesFill ? 1 : 0.55;
+}
+
+function loadLog() {
+  var d = $('history');
+  if (!d.open) return;
+  svc('POST', '/log', { limit: 50 }).then(function (r) {
+    if (!r.cycles.length) { $('histBody').innerHTML = '<p class="hint">Nothing marked yet.</p>'; return; }
+    var h = '<table><tr><th>When</th><th>Profile</th><th>Cycle</th><th>Items</th><th>First</th><th>Last</th><th>Result</th></tr>';
+    r.cycles.forEach(function (c) {
+      var res = c.result === 'done' ? 'Marked' : c.result === 'unsure' ? 'Maybe marked: its numbers were counted as used'
+        : c.result.indexOf('alarm') === 0 ? 'Stopped: ' + c.result : c.result.charAt(0).toUpperCase() + c.result.slice(1);
+      var cls = c.result === 'done' ? 'res-done' : c.result.indexOf('alarm') === 0 ? 'res-bad' : 'res-warn';
+      h += '<tr><td>' + esc(c.at || '') + '</td><td>' + esc(c.profile || '') + '</td><td>' + c.cycle + '</td><td>' + c.items + '</td><td class="mono">' +
+        esc((c.first || []).join(' / ')) + '</td><td class="mono">' + esc((c.last || []).join(' / ')) + '</td><td class="' + cls + '">' + esc(res) + '</td></tr>';
+    });
+    $('histBody').innerHTML = h + '</table>';
+    resize();
+  }).catch(function () {});
+}
+
+function resize() {
+  var h = Math.min(1400, Math.max(200, Math.ceil(document.documentElement.scrollHeight) + 2));
+  if (Math.abs(h - lastHeight) < 4) return;
+  lastHeight = h;
+  ffx.frame.height(h).catch(function () {});
+}
+
+/* --- the loop -------------------------------------------------------------------------------------- */
+
+var lastState = null, lastDone = -1;
+
+function poll() {
+  return svc('GET', '/state').then(function (v) {
+    var was = RUN;
+    RUN = v;
+    PROFILES = v.profiles || PROFILES;
+    renderProfiles();
+    var r = v.run;
+    if (r && (r.done !== lastDone || v.state !== lastState)) {
+      if (lastState === 'running' || (was.run && was.run.done !== r.done)) loadLog();
+      if (P && r.profile === P.id && v.state !== lastState) loadProfile(P.id);
+    }
+    if (!r && lastState && lastState !== 'idle') { loadLog(); if (P) loadProfile(P.id); }
+    lastState = v.state;
+    lastDone = r ? r.done : -1;
+    renderRun();
+  }).catch(function (e) {
+    RUN = { state: 'idle', note: { kind: 'bad', text: 'The Serializer does not answer: ' + words(e) } };
+    renderRun();
+  });
+}
+
+function pollMachine() {
+  return ffx.machine.status().then(function (s) {
+    var moved = !MS || !s.pos || !MS.pos || Math.abs(s.pos.x - MS.pos.x) > 0.05 || Math.abs(s.pos.y - MS.pos.y) > 0.05 ||
+      (s.homed_axes & 3) !== (MS.homed_axes & 3) || (s.lens && MS.lens && s.lens.tray !== MS.lens.tray);
+    MS = s;
+    if (moved && P && P.start.mode === 'current' && !RUN.run) schedulePreview(200);
+    if (pvMode === 'bed') drawBed();
+    renderRun();
+  }).catch(function () { MS = null; renderRun(); });
+}
+
+function pollJob() {
+  if (RUN.state !== 'running') { progress = null; return Promise.resolve(); }
+  return ffx.motion.jobState().then(function (j) {
+    progress = j && j.lines ? Math.min(1, (j.acked || 0) / j.lines) : null;
+    renderRun();
+  }).catch(function () { progress = null; });
+}
+
+function every(ms, fn) {
+  (function tick() {
+    Promise.resolve(fn()).then(function () { setTimeout(tick, ms); }, function () { setTimeout(tick, ms); });
+  })();
+}
+
+function start() {
+  bindFields();
+  bindInserts();
+  bindFonts();
+  bindLists();
+  bindPreview();
+  bindRun();
+  bindProfiles();
+  $('tabs').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-tab]');
+    if (b) showTab(b.getAttribute('data-tab'));
+  });
+  $('history').addEventListener('toggle', function () { loadLog(); resize(); });
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(document.body);
+  renderFieldRef();
+  ffx.self().then(function (me) { UNITS = me.units === 'imperial' ? 'imperial' : 'metric'; }).catch(function () {})
+    .then(function () { return svc('GET', '/fonts'); })
+    .then(function (r) { FONTS = r.fonts; })
+    .then(function () { return svc('GET', '/state'); })
+    .then(function (v) {
+      RUN = v;
+      PROFILES = v.profiles || [];
+      lastState = v.state;
+      return loadProfile(v.selected || (PROFILES[0] && PROFILES[0].id));
+    })
+    .then(function () {
+      loadSamples([P.font]);
+      every(1000, poll);
+      every(2000, pollMachine);
+      every(1000, pollJob);
+      setInterval(function () { renderFieldRef(); renderInserts(); schedulePreview(0); }, 60000);
+    })
+    .catch(function (e) {
+      $('runTitle').textContent = 'The Serializer does not answer';
+      $('runSub').textContent = words(e);
+    });
+}
+
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+[
+ {
+  "id": "hershey-sans",
+  "name": "Hershey Sans",
+  "file": "hershey-sans.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "hershey-sans-med",
+  "name": "Hershey Sans Medium",
+  "file": "hershey-sans-med.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "hershey-serif",
+  "name": "Hershey Serif",
+  "file": "hershey-serif.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "hershey-serif-italic",
+  "name": "Hershey Serif Italic",
+  "file": "hershey-serif-italic.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "hershey-script",
+  "name": "Hershey Script",
+  "file": "hershey-script.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "hershey-script-med",
+  "name": "Hershey Script Medium",
+  "file": "hershey-script-med.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "hershey-gothic",
+  "name": "Hershey Gothic English",
+  "file": "hershey-gothic.json",
+  "license": "Hershey",
+  "license_file": "HERSHEY.txt"
+ },
+ {
+  "id": "ems-readability",
+  "name": "EMS Readability",
+  "file": "ems-readability.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-readability-italic",
+  "name": "EMS Readability Italic",
+  "file": "ems-readability-italic.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-tech",
+  "name": "EMS Tech",
+  "file": "ems-tech.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-osmotron",
+  "name": "EMS Osmotron",
+  "file": "ems-osmotron.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-nixish",
+  "name": "EMS Nixish",
+  "file": "ems-nixish.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-nixish-italic",
+  "name": "EMS Nixish Italic",
+  "file": "ems-nixish-italic.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-allure",
+  "name": "EMS Allure",
+  "file": "ems-allure.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-elfin",
+  "name": "EMS Elfin",
+  "file": "ems-elfin.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ },
+ {
+  "id": "ems-felix",
+  "name": "EMS Felix",
+  "file": "ems-felix.json",
+  "license": "OFL-1.1",
+  "license_file": "OFL.txt"
+ }
+]

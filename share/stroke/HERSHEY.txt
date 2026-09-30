@@ -1,0 +1,11 @@
+The Hershey Fonts were originally created by Dr. A. V. Hershey while
+working at the U. S. National Bureau of Standards.
+
+The format of the Font data in the distribution these files were made
+from was originally created by James Hurt, Cognition, Inc., 900
+Technology Park Drive, Billerica, MA 01821 (mit-eddie!ci-dandelion!hurt).
+
+This distribution of the Hershey Fonts may be used by anyone for any
+purpose, commercial or otherwise, providing that this acknowledgment is
+distributed with the font data. The data here is converted from the SVG
+fonts prepared by Windell H. Oskay (Evil Mad Scientist Laboratories).

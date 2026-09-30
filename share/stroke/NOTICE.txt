@@ -1,0 +1,330 @@
+Where each font's data comes from, as its SVG font says.
+
+Hershey Sans (HersheySans1.svg)
+Font name: Hershey Sans 1-stroke
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+Hershey Sans Medium (HersheySansMed.svg)
+Font name: Hershey Sans medium
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+Hershey Serif (HersheySerifMed.svg)
+Font name: Hershey Serif medium
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+Hershey Serif Italic (HersheySerifMedItalic.svg)
+Font name: Hershey Serif medium italic
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+Hershey Script (HersheyScript1.svg)
+Font name: Hershey Script 1-stroke
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+Hershey Script Medium (HersheyScriptMed.svg)
+Font name: Hershey Script medium
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+Hershey Gothic English (HersheyGothEnglish.svg)
+Font name: Hershey Gothic English
+
+Originally prepared in 2011 and converted to SVG fonts
+in 2019 by Windell H. Oskay, www.evilmadscientist.com
+
+Contents adapted from emergent.unpythonic.net/software/hershey
+ by way of "Hershey Fonts in SVG" by Marty McGuire
+ http://www.thingiverse.com/thing:6168
+ 
+-------------------------------------------------------------------
+The Hershey Fonts are a set of vector fonts with a liberal license.
+
+USE RESTRICTION:
+    This distribution of the Hershey Fonts may be used by anyone for
+    any purpose, commercial or otherwise, providing that:
+        1. The following acknowledgements must be distributed with
+            the font data:
+            - The Hershey Fonts were originally created by Dr.
+                A. V. Hershey while working at the U. S.
+                National Bureau of Standards.
+            - The format of the Font data in this distribution
+                was originally created by
+                    James Hurt
+                    Cognition, Inc.
+                    900 Technology Park Drive
+                    Billerica, MA 01821
+                    (mit-eddie!ci-dandelion!hurt)
+        2. The font data in this distribution may be converted into
+            any other format *EXCEPT* the format distributed by
+            the U.S. NTIS where each point is described
+            in eight bytes as "xxx yyy:", where xxx and yyy are
+            the coordinate values as ASCII numbers.
+
+EMS Readability (EMSReadability.svg)
+Font name:               EMS Readability
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Source Sans Pro-Light
+Designer:                Paul D. Hunt, Adobe
+Link:                    http://www.adobe.com
+Google font page:        https://fonts.google.com/specimen/Source+Sans+Pro
+
+EMS Readability Italic (EMSReadabilityItalic.svg)
+Font name:               EMS Readability Italic
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Source Sans Pro-Light
+Designer:                Paul D. Hunt, Adobe
+Link:                    http://www.adobe.com
+Google font page:        https://fonts.google.com/specimen/Source+Sans+Pro
+
+EMS Tech (EMSTech.svg)
+Font name:               EMS Tech
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Architects Daughter
+Designer:                Kimberly Geswein, Kimberly Geswein Fonts
+Link:                    http://www.kimberlygeswein.com/
+Google font page:        https://fonts.google.com/specimen/Architects+Daughter
+
+EMS Osmotron (EMSOsmotron.svg)
+Font name:               EMS Osmotron
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Orbitron (Regular)
+Designer:                Matt McInerney, the League of Moveable Type
+Link:                    https://www.theleagueofmoveabletype.com
+Google font page:        https://fonts.google.com/specimen/Orbitron
+
+EMS Nixish (EMSNixish.svg)
+Font name:               EMS Nixish
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Nixie One
+Designer:                Jovanny Lemonad
+Link:                    http://jovanny.ru
+Google font page:        https://fonts.google.com/specimen/Nixie+One
+
+EMS Nixish Italic (EMSNixishItalic.svg)
+Font name:               EMS Nixish Italic
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Nixie One
+Designer:                Jovanny Lemonad
+Link:                    http://jovanny.ru
+Google font page:        https://fonts.google.com/specimen/Nixie+One
+
+EMS Allure (EMSAllure.svg)
+Font name:               EMS Allure
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Allura
+Designer:                Rob Leuschke, TypeSETit
+Link:                    http://www.typesetit.com
+Google font page:        https://fonts.google.com/specimen/Allura
+
+EMS Elfin (EMSElfin.svg)
+Font name:               EMS Elfin
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Mountains of Christmas
+Designer:                Crystal Kluge, Tart Workshop
+Link:                    http://www.tartworkshop.com
+Google font page:        https://fonts.google.com/specimen/Mountains+of+Christmas
+Note:                    SIL OFL per metadata; Google cites Apache License, version 2.0
+
+EMS Felix (EMSFelix.svg)
+Font name:               EMS Felix
+License:                 SIL Open Font License http://scripts.sil.org/OFL
+Created by:              Sheldon B. Michaels
+SVG font conversion by:  Windell H. Oskay
+A derivative of:         Felipa
+Designer:                Fontstage
+Link:                    https://twitter.com/fontstage
+Google font page:        https://fonts.google.com/specimen/Felipa

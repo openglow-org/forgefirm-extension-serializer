@@ -1,0 +1,258 @@
+[
+ {
+  "id": "roboto-400",
+  "name": "Roboto Regular",
+  "category": "Sans",
+  "file": "roboto-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/roboto.txt"
+ },
+ {
+  "id": "roboto-700",
+  "name": "Roboto Bold",
+  "category": "Sans",
+  "file": "roboto-700.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/roboto.txt"
+ },
+ {
+  "id": "opensans-400",
+  "name": "Open Sans Regular",
+  "category": "Sans",
+  "file": "opensans-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/opensans.txt"
+ },
+ {
+  "id": "opensans-700",
+  "name": "Open Sans Bold",
+  "category": "Sans",
+  "file": "opensans-700.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/opensans.txt"
+ },
+ {
+  "id": "inter-400",
+  "name": "Inter Regular",
+  "category": "Sans",
+  "file": "inter-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/inter.txt"
+ },
+ {
+  "id": "inter-700",
+  "name": "Inter Bold",
+  "category": "Sans",
+  "file": "inter-700.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/inter.txt"
+ },
+ {
+  "id": "montserrat-400",
+  "name": "Montserrat Regular",
+  "category": "Sans",
+  "file": "montserrat-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/montserrat.txt"
+ },
+ {
+  "id": "montserrat-700",
+  "name": "Montserrat Bold",
+  "category": "Sans",
+  "file": "montserrat-700.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/montserrat.txt"
+ },
+ {
+  "id": "barlow-500",
+  "name": "Barlow Medium",
+  "category": "Sans",
+  "file": "barlow-500.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/barlow.txt"
+ },
+ {
+  "id": "barlowcondensed-500",
+  "name": "Barlow Condensed Medium",
+  "category": "Sans",
+  "file": "barlowcondensed-500.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/barlowcondensed.txt"
+ },
+ {
+  "id": "oswald-500",
+  "name": "Oswald Medium",
+  "category": "Sans",
+  "file": "oswald-500.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/oswald.txt"
+ },
+ {
+  "id": "bebasneue-400",
+  "name": "Bebas Neue",
+  "category": "Sans",
+  "file": "bebasneue-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/bebasneue.txt"
+ },
+ {
+  "id": "robotoslab-400",
+  "name": "Roboto Slab Regular",
+  "category": "Serif",
+  "file": "robotoslab-400.ttf",
+  "license": "Apache-2.0",
+  "license_file": "licenses/robotoslab.txt"
+ },
+ {
+  "id": "robotoslab-700",
+  "name": "Roboto Slab Bold",
+  "category": "Serif",
+  "file": "robotoslab-700.ttf",
+  "license": "Apache-2.0",
+  "license_file": "licenses/robotoslab.txt"
+ },
+ {
+  "id": "merriweather-400",
+  "name": "Merriweather",
+  "category": "Serif",
+  "file": "merriweather-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/merriweather.txt"
+ },
+ {
+  "id": "librebaskerville-400",
+  "name": "Libre Baskerville",
+  "category": "Serif",
+  "file": "librebaskerville-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/librebaskerville.txt"
+ },
+ {
+  "id": "ebgaramond-500",
+  "name": "EB Garamond Medium",
+  "category": "Serif",
+  "file": "ebgaramond-500.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/ebgaramond.txt"
+ },
+ {
+  "id": "playfairdisplay-400",
+  "name": "Playfair Display",
+  "category": "Serif",
+  "file": "playfairdisplay-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/playfairdisplay.txt"
+ },
+ {
+  "id": "robotomono-400",
+  "name": "Roboto Mono Regular",
+  "category": "Monospace",
+  "file": "robotomono-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/robotomono.txt"
+ },
+ {
+  "id": "robotomono-700",
+  "name": "Roboto Mono Bold",
+  "category": "Monospace",
+  "file": "robotomono-700.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/robotomono.txt"
+ },
+ {
+  "id": "jetbrainsmono-400",
+  "name": "JetBrains Mono",
+  "category": "Monospace",
+  "file": "jetbrainsmono-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/jetbrainsmono.txt"
+ },
+ {
+  "id": "ibmplexmono-400",
+  "name": "IBM Plex Mono",
+  "category": "Monospace",
+  "file": "ibmplexmono-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/ibmplexmono.txt"
+ },
+ {
+  "id": "sharetechmono-400",
+  "name": "Share Tech Mono",
+  "category": "Monospace",
+  "file": "sharetechmono-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/sharetechmono.txt"
+ },
+ {
+  "id": "b612mono-400",
+  "name": "B612 Mono",
+  "category": "Monospace",
+  "file": "b612mono-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/b612mono.txt"
+ },
+ {
+  "id": "orbitron-500",
+  "name": "Orbitron Medium",
+  "category": "Display",
+  "file": "orbitron-500.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/orbitron.txt"
+ },
+ {
+  "id": "russoone-400",
+  "name": "Russo One",
+  "category": "Display",
+  "file": "russoone-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/russoone.txt"
+ },
+ {
+  "id": "blackopsone-400",
+  "name": "Black Ops One",
+  "category": "Display",
+  "file": "blackopsone-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/blackopsone.txt"
+ },
+ {
+  "id": "allertastencil-400",
+  "name": "Allerta Stencil",
+  "category": "Display",
+  "file": "allertastencil-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/allertastencil.txt"
+ },
+ {
+  "id": "sairastencilone-400",
+  "name": "Saira Stencil One",
+  "category": "Display",
+  "file": "sairastencilone-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/sairastencilone.txt"
+ },
+ {
+  "id": "dancingscript-500",
+  "name": "Dancing Script Medium",
+  "category": "Script",
+  "file": "dancingscript-500.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/dancingscript.txt"
+ },
+ {
+  "id": "greatvibes-400",
+  "name": "Great Vibes",
+  "category": "Script",
+  "file": "greatvibes-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/greatvibes.txt"
+ },
+ {
+  "id": "pacifico-400",
+  "name": "Pacifico",
+  "category": "Script",
+  "file": "pacifico-400.ttf",
+  "license": "OFL-1.1",
+  "license_file": "licenses/pacifico.txt"
+ }
+]
