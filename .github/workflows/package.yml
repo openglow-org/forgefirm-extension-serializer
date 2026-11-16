@@ -14,7 +14,7 @@ name: package
 
 on:
   push:
-    branches: [main]
+    branches: [main, next]
   pull_request:
 
 permissions:
@@ -24,5 +24,6 @@ jobs:
   package:
     uses: openglow-org/forgeext/.github/workflows/package.yml@main
     with:
+      forgeext-ref: ${{ github.repository_owner == 'openglow-org' && (github.ref_name == 'next' || github.base_ref == 'next') && 'next' || 'main' }}
       test: make test && make test-page
     secrets: inherit
